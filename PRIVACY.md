@@ -1,15 +1,15 @@
-# Privacy Policy — Calm Reader
+# Privacy Policy — Whisper Reader
 
 **Last updated: 8 September 2026**
 
 ## The short version
 
-Calm Reader does not collect, transmit, sell or share any data. It makes no
+Whisper Reader does not collect, transmit, sell or share any data. It makes no
 network requests of any kind. Everything it does happens on your own device.
 
 ## What the extension accesses
 
-When you activate Calm Reader on a page — by clicking its toolbar icon,
+When you activate Whisper Reader on a page — by clicking its toolbar icon,
 pressing its keyboard shortcut, or using its right-click menu — it reads the
 visible text of that page so it can speak it aloud and highlight along.
 
@@ -17,7 +17,7 @@ That text is used only to produce speech, in the moment, in your browser. It is
 never sent anywhere. Speech is produced by your browser's own built-in
 `speechSynthesis` feature using the voices already installed on your computer.
 
-Calm Reader has no access to any page until you activate it there. It requests
+Whisper Reader has no access to any page until you activate it there. It requests
 no permanent access to any website.
 
 ## What is stored, and where
