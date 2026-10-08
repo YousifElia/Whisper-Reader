@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>encode</title>
+<!--
+  Turns rendered frames plus the narration into an MP4, using nothing but
+  Chrome: frames are drawn onto a canvas in step with the audio clock, and
+  MediaRecorder muxes canvas and audio into H.264 + AAC. Real time by nature,
+  so a 40-second video takes 40 seconds; driven by video.mjs.
+-->
+</head>
+<body style="margin:0;background:#000">
+<canvas id="c"></canvas>
+<script>
+window.encode = async function ({ frameUrl, frames, fps, width, height, audioUrl, mimeType, bitrate }) {
+  const canvas = document.getElementById('c');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d', { alpha: false });
+
+  const audioCtx = new AudioContext({ sampleRate: 48000 });
+  await audioCtx.resume();
+  const audio = await audioCtx.decodeAudioData(await (await fetch(audioUrl)).arrayBuffer());
+  const dest = audioCtx.createMediaStreamDestination();
+  const source = audioCtx.createBufferSource();
+  source.buffer = audio;
+  source.connect(dest);
+
+  // Decode ahead of the playhead so drawing never waits on the network. A
+  // failed fetch or decode resolves to null and is retried on the next tick:
+  // one rejected promise used to stop the loop for good and hang the encode.
+  const AHEAD = 24;
+  const cache = new Map();
+  const load = (i) => {
+    if (i >= frames || cache.has(i)) return;
+    const url = frameUrl.replace('%d', String(i).padStart(5, '0'));
+    cache.set(
+      i,
+      fetch(url)
+        .then((r) => (r.ok ? r.blob() : Promise.reject(new Error(r.status))))
+        .then((b) => createImageBitmap(b))
+        .catch(() => {
+          cache.delete(i);
+          return null;
+        }),
+    );
+  };
+  for (let i = 0; i < AHEAD; i++) load(i);
+  const first = await cache.get(0);
+  if (first) ctx.drawImage(first, 0, 0);
+
+  const videoTrack = canvas.captureStream(fps).getVideoTracks()[0];
+  const stream = new MediaStream([videoTrack, ...dest.stream.getAudioTracks()]);
+  const recorder = new MediaRecorder(stream, {
+    mimeType,
+    videoBitsPerSecond: bitrate,
+    audioBitsPerSecond: 160_000,
+  });
+  const chunks = [];
+  recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+  const stopped = new Promise((r) => (recorder.onstop = r));
+
+  recorder.start(1000);
+  const t0 = audioCtx.currentTime + 0.25;
+  source.start(t0);
+  const duration = frames / fps;
+  let drawn = 0;
+  let late = 0;
+
+  await new Promise((done) => {
+    const tick = async () => {
+      const t = audioCtx.currentTime - t0;
+      if (t > duration + 0.3) return done();
+      const index = Math.max(0, Math.min(frames - 1, Math.floor(t * fps)));
+      try {
+        if (index !== drawn) {
+          load(index);
+          const bitmap = await cache.get(index);
+          if (bitmap) {
+            ctx.drawImage(bitmap, 0, 0);
+            if (index > drawn + 1) late++;
+            drawn = index;
+            for (const [k, v] of cache) if (k < index - 2) { cache.delete(k); v.then((b) => b?.close?.()); }
+          }
+          for (let i = index; i < index + AHEAD; i++) load(i);
+        }
+      } finally {
+        setTimeout(tick, 4);
+      }
+    };
+    tick();
+  });
+
+  recorder.stop();
+  await stopped;
+  const blob = new Blob(chunks, { type: mimeType });
+  const buffer = new Uint8Array(await blob.arrayBuffer());
+  window.__video = buffer;
+  return { bytes: buffer.length, skippedFrames: late };
+};
+
+/** Hand the result to the driver in pieces small enough for one CDP message. */
+window.videoChunk = function (i, size) {
+  const part = window.__video.subarray(i * size, (i + 1) * size);
+  let binary = '';
+  for (let j = 0; j < part.length; j += 0x8000) {
+    binary += String.fromCharCode.apply(null, part.subarray(j, j + 0x8000));
+  }
+  return btoa(binary);
+};
+</script>
+</body>
+</html>

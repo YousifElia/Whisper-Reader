@@ -1,0 +1,280 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Set up Whisper Reader</title>
+    <style>
+      /*
+       * Same three-state theming as the popup and the in-page panel: tokens on
+       * :root for light, redefined under the media query (guarded so an
+       * explicit light choice still wins) and again under [data-theme="dark"].
+       */
+      :root {
+        --fg: #1b1b1f;
+        --muted: #5d5d66;
+        --bg: #fcfbf9;
+        --card: #ffffff;
+        --line: rgba(0, 0, 0, 0.12);
+        --btn-bg: rgba(0, 0, 0, 0.05);
+        --btn-hover: rgba(0, 0, 0, 0.1);
+        --sel-bg: rgba(240, 165, 0, 0.12);
+        --accent: #f0a500;
+        --accent-hover: #ffb61a;
+        --accent-border: #d89400;
+        --accent-ink: #21160a;
+        color-scheme: light;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --fg: #ececf1;
+          --muted: #a3a3ad;
+          --bg: #17171a;
+          --card: #212126;
+          --line: rgba(255, 255, 255, 0.14);
+          --btn-bg: rgba(255, 255, 255, 0.07);
+          --btn-hover: rgba(255, 255, 255, 0.13);
+          --sel-bg: rgba(240, 165, 0, 0.16);
+          color-scheme: dark;
+        }
+      }
+      :root[data-theme='dark'] {
+        --fg: #ececf1;
+        --muted: #a3a3ad;
+        --bg: #17171a;
+        --card: #212126;
+        --line: rgba(255, 255, 255, 0.14);
+        --btn-bg: rgba(255, 255, 255, 0.07);
+        --btn-hover: rgba(255, 255, 255, 0.13);
+        --sel-bg: rgba(240, 165, 0, 0.16);
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 40px 16px 64px;
+        font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+          sans-serif;
+        color: var(--fg);
+        background: var(--bg);
+      }
+      main {
+        max-width: 560px;
+        margin: 0 auto;
+      }
+      header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 28px;
+      }
+      h1 {
+        font-size: 19px;
+        font-weight: 620;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      h2 {
+        font-size: 22px;
+        font-weight: 600;
+        margin: 0 0 6px;
+        letter-spacing: -0.015em;
+      }
+      p.sub {
+        margin: 0 0 22px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .dots {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 26px;
+      }
+      .dot {
+        height: 3px;
+        flex: 1;
+        border-radius: 2px;
+        background: var(--line);
+      }
+      .dot.on {
+        background: var(--accent);
+      }
+      .choices {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin: 0 0 24px;
+      }
+      .choice {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        text-align: left;
+        font: inherit;
+        color: inherit;
+        padding: 13px 14px;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: var(--card);
+        cursor: pointer;
+      }
+      .choice:hover {
+        border-color: var(--accent-border);
+      }
+      .choice[aria-checked='true'] {
+        border-color: var(--accent-border);
+        background: var(--sel-bg);
+      }
+      .choice .body {
+        flex: 1;
+        min-width: 0;
+      }
+      .choice .name {
+        font-weight: 550;
+      }
+      .choice .meta {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .sample {
+        flex: none;
+        font: inherit;
+        font-size: 13px;
+        color: inherit;
+        background: var(--btn-bg);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 6px 11px;
+        cursor: pointer;
+      }
+      .sample:hover {
+        background: var(--btn-hover);
+      }
+      .speed {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        padding: 20px 18px;
+        margin-bottom: 20px;
+      }
+      .speed .readout {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .speed .big {
+        font-size: 30px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+      }
+      input[type='range'] {
+        width: 100%;
+        accent-color: var(--accent);
+      }
+      .scale {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11.5px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .note {
+        color: var(--muted);
+        font-size: 13px;
+        margin: 12px 0 0;
+      }
+      .advice {
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: 9px;
+        padding: 13px 15px;
+        margin: 0 0 22px;
+        font-size: 13.5px;
+      }
+      .advice p {
+        margin: 0 0 7px;
+        font-weight: 550;
+      }
+      .advice ol {
+        margin: 0;
+        padding-left: 19px;
+        color: var(--muted);
+      }
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      button.primary {
+        font: inherit;
+        font-weight: 600;
+        background: var(--accent);
+        border: 1px solid var(--accent-border);
+        color: var(--accent-ink);
+        border-radius: 9px;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+      button.primary:hover {
+        background: var(--accent-hover);
+      }
+      button.quiet {
+        font: inherit;
+        color: var(--muted);
+        background: none;
+        border: none;
+        padding: 10px 4px;
+        cursor: pointer;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      button.quiet:hover {
+        color: var(--fg);
+      }
+      .spacer {
+        flex: 1;
+      }
+      kbd {
+        font: inherit;
+        font-size: 12.5px;
+        border: 1px solid var(--line);
+        border-bottom-width: 2px;
+        border-radius: 5px;
+        padding: 1px 6px;
+        background: var(--btn-bg);
+      }
+      ul.start {
+        margin: 0 0 24px;
+        padding-left: 19px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      ul.start li {
+        margin-bottom: 7px;
+      }
+      ul.start strong {
+        color: var(--fg);
+        font-weight: 550;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Whisper Reader</h1>
+        <button class="quiet" id="skip" type="button">Skip setup</button>
+      </header>
+      <div class="dots" id="dots" aria-hidden="true"></div>
+      <div id="step"></div>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

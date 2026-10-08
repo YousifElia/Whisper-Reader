@@ -1,0 +1,9 @@
+# Normalise text, and never let line-ending conversion touch media.
+* text=auto
+*.png binary
+*.jpg binary
+*.gif binary
+*.mp4 binary
+*.wav binary
+*.zip binary
+*.ps1 text eol=crlf
