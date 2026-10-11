@@ -1,0 +1,50 @@
+[
+ {
+  "id": "s0",
+  "text": "The Case for Reading Slowly",
+  "voice": "Zira",
+  "rate": -1
+ },
+ {
+  "id": "s1",
+  "text": "We skim more than ever and remember less.",
+  "voice": "Zira",
+  "rate": -1
+ },
+ {
+  "id": "s2",
+  "text": "Listening might be the way back.",
+  "voice": "Zira",
+  "rate": -1
+ },
+ {
+  "id": "s3",
+  "text": "Most of what we read today, we do not really read at all.",
+  "voice": "Zira",
+  "rate": -1
+ },
+ {
+  "id": "s4",
+  "text": "We glance at a headline, drag a thumb down the page, and move on before the second paragraph has had a chance to speak.",
+  "voice": "Zira",
+  "rate": 1
+ },
+ {
+  "id": "s5",
+  "text": "The words pass in front of us, but very little of them stays.",
+  "voice": "Zira",
+  "rate": 1
+ },
+ {
+  "id": "s6",
+  "text": "Reading slowly is not about being slow.",
+  "voice": "David",
+  "rate": 1
+ },
+ {
+  "id": "s7",
+  "text": "It is about giving a sentence the time it was written to take.",
+  "voice": "David",
+  "rate": 1
+ }
+]

@@ -1,6 +1,6 @@
 # Privacy Policy — Whisper Reader
 
-**Last updated: 8 September 2026**
+**Last updated: 8 October 2026**
 
 ## The short version
 
@@ -45,6 +45,15 @@ Removing the extension deletes all of it.
 **Voice capabilities** — which of your installed voices report word positions,
 so the extension can tell you honestly which ones support word-by-word
 highlighting. This is a list of voice names only, stored on the device.
+
+**How your browser handles speed** — a single true/false answer recorded the
+first time the extension runs, noting whether this browser's speech engine
+offers a continuous reading speed or a fixed set of steps. It is measured by
+timing two silent test phrases, and it is used to decide which speeds the
+slider should offer. No page is involved and nothing is sent anywhere.
+
+**Whether setup has been completed** — a single flag, so the welcome page does
+not open again every time.
 
 ## What the extension does not do
 
