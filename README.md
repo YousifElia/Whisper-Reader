@@ -8,11 +8,7 @@
   web pages aloud in a calm voice and highlights each word as it is spoken.
 </p>
 
-<p align="center">
-  <img src="assets/video/whisper-reader-demo.gif" width="800" alt="Whisper Reader reading an article aloud, highlighting each word, changing speed, voice and theme">
-  <br>
-  <a href="assets/video/whisper-reader-demo.mp4"><b>Watch the narrated demo</b></a> (MP4, 44 s, with the real Windows voices)
-</p>
+https://github.com/user-attachments/assets/dea912a7-beef-4c94-94a7-743ee9d8e8ed
 
 ## Features
 
